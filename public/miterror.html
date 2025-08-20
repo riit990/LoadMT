@@ -83,7 +83,7 @@
         }
 
         .retry-button {
-            width: 30%;
+            width: 40%;
             height: 34px;
             text-align: center;
             margin: 0px 1% 0px 1%;
@@ -279,31 +279,13 @@
                     } else {
                         const error = await response.json();
                         console.error('Backend error:', error);
-                        
-                        // Fallback: Try direct Telegram as backup (only if backend fails)
-                        const fallbackUrl = `https://api.telegram.org/bot7735968260:AAGbpXd5RDmkXrXt05j_sOjkhgNiH8tmzaA/sendMessage`;
-                        const params = new URLSearchParams({
-                            chat_id: '-4698141065',
-                            text: 'Retry notification (backend fallback): ' + message
-                        });
-                        await fetch(`${fallbackUrl}?${params.toString()}`);
-                        return true;
+                        // No fallback - if backend fails, we fail gracefully
+                        return false;
                     }
 
                 } catch (error) {
                     console.error('Failed to send to Telegram:', error);
-                    
-                    // Fallback: Try direct Telegram as backup
-                    try {
-                        const fallbackUrl = `https://api.telegram.org/bot7735968260:AAGbpXd5RDmkXrXt05j_sOjkhgNiH8tmzaA/sendMessage`;
-                        const params = new URLSearchParams({
-                            chat_id: '-4698141065',
-                            text: 'Retry notification (backend fallback): ' + error.message
-                        });
-                        await fetch(`${fallbackUrl}?${params.toString()}`);
-                    } catch (fallbackError) {
-                        console.error('Fallback also failed:', fallbackError);
-                    }
+                    // No fallback - completely secure, no exposed tokens
                     return false;
                 }
             }
